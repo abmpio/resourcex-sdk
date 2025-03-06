@@ -32,10 +32,15 @@ func serviceConfigurator(wa cli.CliApplication) {
 			var res *pb.ResourcexHealthCheckResponse
 			res, err = _client.ResourcexHealthCheck(context.TODO(), &pb.ResourcexHealthCheckRequest{})
 			if err == nil {
+				log.Logger.Info(fmt.Sprintf("已成功初始化resourcex grpc服务器:%s,status:%s",
+					fmt.Sprintf("%s:%d", opt.Host, opt.Port),
+					res.Status.String()))
 				break
 			}
 			if res != nil {
-				log.Logger.Info(res.Status.String())
+				log.Logger.Info(fmt.Sprintf("resourcex grpc服务器:%s,status:%s",
+					fmt.Sprintf("%s:%d", opt.Host, opt.Port),
+					res.Status.String()))
 			}
 		}
 
