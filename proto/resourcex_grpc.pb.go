@@ -29,7 +29,7 @@ const (
 type ResourcexClient interface {
 	ResourcexHealthCheck(ctx context.Context, in *ResourcexHealthCheckRequest, opts ...grpc.CallOption) (*ResourcexHealthCheckResponse, error)
 	// 客户端流式RPC方法，用于上传文件
-	ResourcexUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[ResourcexUploadFileChunk, UploadResponse], error)
+	ResourcexUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[ResourcexUploadFileChunk, ResourcexUploadFileResponse], error)
 }
 
 type resourcexClient struct {
@@ -50,18 +50,18 @@ func (c *resourcexClient) ResourcexHealthCheck(ctx context.Context, in *Resource
 	return out, nil
 }
 
-func (c *resourcexClient) ResourcexUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[ResourcexUploadFileChunk, UploadResponse], error) {
+func (c *resourcexClient) ResourcexUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[ResourcexUploadFileChunk, ResourcexUploadFileResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &Resourcex_ServiceDesc.Streams[0], Resourcex_ResourcexUploadFile_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[ResourcexUploadFileChunk, UploadResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[ResourcexUploadFileChunk, ResourcexUploadFileResponse]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Resourcex_ResourcexUploadFileClient = grpc.ClientStreamingClient[ResourcexUploadFileChunk, UploadResponse]
+type Resourcex_ResourcexUploadFileClient = grpc.ClientStreamingClient[ResourcexUploadFileChunk, ResourcexUploadFileResponse]
 
 // ResourcexServer is the server API for Resourcex service.
 // All implementations must embed UnimplementedResourcexServer
@@ -69,7 +69,7 @@ type Resourcex_ResourcexUploadFileClient = grpc.ClientStreamingClient[ResourcexU
 type ResourcexServer interface {
 	ResourcexHealthCheck(context.Context, *ResourcexHealthCheckRequest) (*ResourcexHealthCheckResponse, error)
 	// 客户端流式RPC方法，用于上传文件
-	ResourcexUploadFile(grpc.ClientStreamingServer[ResourcexUploadFileChunk, UploadResponse]) error
+	ResourcexUploadFile(grpc.ClientStreamingServer[ResourcexUploadFileChunk, ResourcexUploadFileResponse]) error
 	mustEmbedUnimplementedResourcexServer()
 }
 
@@ -83,7 +83,7 @@ type UnimplementedResourcexServer struct{}
 func (UnimplementedResourcexServer) ResourcexHealthCheck(context.Context, *ResourcexHealthCheckRequest) (*ResourcexHealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ResourcexHealthCheck not implemented")
 }
-func (UnimplementedResourcexServer) ResourcexUploadFile(grpc.ClientStreamingServer[ResourcexUploadFileChunk, UploadResponse]) error {
+func (UnimplementedResourcexServer) ResourcexUploadFile(grpc.ClientStreamingServer[ResourcexUploadFileChunk, ResourcexUploadFileResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method ResourcexUploadFile not implemented")
 }
 func (UnimplementedResourcexServer) mustEmbedUnimplementedResourcexServer() {}
@@ -126,11 +126,11 @@ func _Resourcex_ResourcexHealthCheck_Handler(srv interface{}, ctx context.Contex
 }
 
 func _Resourcex_ResourcexUploadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(ResourcexServer).ResourcexUploadFile(&grpc.GenericServerStream[ResourcexUploadFileChunk, UploadResponse]{ServerStream: stream})
+	return srv.(ResourcexServer).ResourcexUploadFile(&grpc.GenericServerStream[ResourcexUploadFileChunk, ResourcexUploadFileResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type Resourcex_ResourcexUploadFileServer = grpc.ClientStreamingServer[ResourcexUploadFileChunk, UploadResponse]
+type Resourcex_ResourcexUploadFileServer = grpc.ClientStreamingServer[ResourcexUploadFileChunk, ResourcexUploadFileResponse]
 
 // Resourcex_ServiceDesc is the grpc.ServiceDesc for Resourcex service.
 // It's only intended for direct use with grpc.RegisterService,

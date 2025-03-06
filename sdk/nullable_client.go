@@ -20,7 +20,7 @@ func (*NullableClient) ResourcexHealthCheck(ctx context.Context, in *pb.Resource
 	}, nil
 }
 
-func (*NullableClient) ResourcexUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[pb.ResourcexUploadFileChunk, pb.UploadResponse], error) {
+func (*NullableClient) ResourcexUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[pb.ResourcexUploadFileChunk, pb.ResourcexUploadFileResponse], error) {
 	log.Logger.Warn("NullableClient.ResourcexUploadFile method")
 	return nil, nil
 }
