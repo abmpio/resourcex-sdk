@@ -50,26 +50,24 @@ message ResourcexUploadFileMetadata {
     string app = 2;
     // 此文件的标签，通常用于区分业务
     string tag = 3;
-    // 文件的所有者
-    string owner = 4;
     // 租户id
-    string tenantId = 5;
+    string tenantId = 4;
     // 所对应的空间id
-    string spaceObjectId = 6;
+    string spaceObjectId = 5;
     // 指定存储到服务器中的文件路径
-    string fullFilePath = 7;
+    string fullFilePath = 6;
     // 文件名
-    string fileName = 8;
+    string fileName = 7;
     // 上传文件的用户id
-    string userId = 9;
+    string userId = 8;
     // 文件的MD5哈希值
-    string fileMd5 = 10;
+    string fileMd5 = 9;
     // 文件大小
-    int64 fileSize = 11;
+    int64 fileSize = 10;
     // 文件内容类型
-    string contentType = 12;
+    string contentType = 11;
     // 文件描述
-    string description = 13;
+    string description = 12;
 }
 
 message ResourcexUploadFileResponse {    
