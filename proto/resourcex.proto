@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+// import "google/protobuf/struct.proto";
+// import "google/protobuf/timestamp.proto";
+// import "google/protobuf/empty.proto";
+
+option go_package="./proto";
+
+package proto;
+
+service Resourcex {
+	rpc ResourcexHealthCheck(ResourcexHealthCheckRequest) returns (ResourcexHealthCheckResponse);
+
+    // 客户端流式RPC方法，用于上传文件
+    rpc ResourcexUploadFile(stream ResourcexUploadFileChunk) returns (UploadResponse);
+}
+
+message BaseResponse {
+	int32 code = 1;
+	string message = 2;
+}
+
+message ResourcexHealthCheckRequest {
+	string service = 1;
+}
+
+message ResourcexHealthCheckResponse {
+	enum ServiceStatus{
+		UNKNOWN = 0;
+		SERVING = 1;
+		NOT_SERVING = 2;
+		SERVICE_UNKNOWN = 3;
+	}
+	ServiceStatus status = 1;
+}
+
+message ResourcexUploadFileChunk {
+    oneof chunk {
+        // 文件元数据（文件名、MD5等）
+        ResourcexUploadFileMetadata metadata = 1; 
+        // 文件数据块
+        bytes data = 2;             
+    }
+}
+
+message ResourcexUploadFileMetadata {
+    // 发送此文件的app
+    string app = 1;
+    // 此文件的标签，通常用于区分业务
+    string tag = 2;
+    // 文件的所有者
+    string owner = 3;
+    // 租户id
+    string tenantId = 4;
+    // 所对应的空间id
+    string spaceObjectId = 5;
+    // 存储的文件路径
+    string fullFilePath = 6;
+    // 文件的MD5哈希值
+    string fileMd5 = 7;
+}
+
+message UploadResponse {    
+    // 是否成功
+    bool success = 1; 
+    // 文件对象id
+    string fileObjectId = 2;
+    // 文件名
+    string fileName = 3;
+    // 文件下载url
+    string fileUrl = 4;
+}
