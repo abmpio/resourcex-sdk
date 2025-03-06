@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+// client interface
 type IClient interface {
 	pb.ResourcexClient
 }
