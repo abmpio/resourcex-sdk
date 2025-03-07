@@ -68,6 +68,8 @@ message ResourcexUploadFileMetadata {
     string contentType = 11;
     // 文件描述
     string description = 12;
+    // 下载时服务器给的文件名
+    string downloadFileName = 13;
 }
 
 message ResourcexUploadFileResponse {    
