@@ -87,4 +87,5 @@ message ResourcexUploadFileResponse {
     string fileName = 6;
     // 文件下载url
     string downloadUrl = 7;
+    string downloadFileName = 8;
 }
