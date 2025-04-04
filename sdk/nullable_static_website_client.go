@@ -23,3 +23,15 @@ func (*nullableStaticWebsiteClient) StaticWebsiteUploadFile(ctx context.Context,
 	log.Logger.Warn("nullableStaticWebsiteClient.StaticWebsiteUploadFile method")
 	return nil, nil
 }
+
+// 删除静态站点文件
+func (*nullableStaticWebsiteClient) StaticWebsiteDeleteFile(ctx context.Context, in *pb.StaticWebsiteDeleteFileRequest, opts ...grpc.CallOption) (*pb.StaticWebsiteDeleteFileResponse, error) {
+	log.Logger.Warn("nullableStaticWebsiteClient.StaticWebsiteDeleteFile method")
+	return nil, nil
+}
+
+// 发布站点
+func (*nullableStaticWebsiteClient) StaticWebsitePublish(ctx context.Context, in *pb.StaticWebsitePublishRequest, opts ...grpc.CallOption) (*pb.StaticWebsitePublishResponse, error) {
+	log.Logger.Warn("nullableStaticWebsiteClient.StaticWebsitePublish method")
+	return nil, nil
+}

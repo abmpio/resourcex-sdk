@@ -21,6 +21,10 @@ service StaticWebsite {
 
     // 用于上传静态站点文件
     rpc StaticWebsiteUploadFile(stream StaticWebsiteUploadFileChunk) returns (StaticWebsiteUploadFileResponse);
+    // 删除静态站点文件
+    rpc StaticWebsiteDeleteFile(StaticWebsiteDeleteFileRequest) returns (StaticWebsiteDeleteFileResponse);
+    // 发布站点
+    rpc StaticWebsitePublish(StaticWebsitePublishRequest) returns (StaticWebsitePublishResponse);
 }
 
 message ResourcexBaseResponse {
@@ -162,4 +166,40 @@ message StaticWebsiteUploadFileResponse {
     string downloadUrl = 7;
     // 预览url
     string previewUrl = 8;
+}
+
+message StaticWebsiteDeleteFileRequest {
+	// 网站名称
+    string staticWebsiteName = 1;
+    // 删除的文件objectId
+    string FileObjectId = 2;
+    // 用户id
+    string userId = 3;
+}
+
+message StaticWebsiteDeleteFileResponse {
+	// 网站名称
+    string staticWebsiteName = 1;
+    // 删除的文件objectId
+    string FileObjectId = 2;
+    // 是否成功
+    bool success = 3;
+    // 如果失败，则返回失败的详细信息
+    string Message = 4;
+}
+
+message StaticWebsitePublishRequest {
+	// 网站名称
+    string staticWebsiteName = 1;
+    // 用户id
+    string userId = 2;
+}
+
+message StaticWebsitePublishResponse {
+	// 网站名称
+    string staticWebsiteName = 1;
+    // 是否成功
+    bool success = 2;
+    // 如果失败，则返回失败的详细信息
+    string Message = 3;
 }

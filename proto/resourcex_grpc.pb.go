@@ -157,6 +157,8 @@ var Resourcex_ServiceDesc = grpc.ServiceDesc{
 const (
 	StaticWebsite_StaticWebsiteHealthCheck_FullMethodName = "/proto.StaticWebsite/StaticWebsiteHealthCheck"
 	StaticWebsite_StaticWebsiteUploadFile_FullMethodName  = "/proto.StaticWebsite/StaticWebsiteUploadFile"
+	StaticWebsite_StaticWebsiteDeleteFile_FullMethodName  = "/proto.StaticWebsite/StaticWebsiteDeleteFile"
+	StaticWebsite_StaticWebsitePublish_FullMethodName     = "/proto.StaticWebsite/StaticWebsitePublish"
 )
 
 // StaticWebsiteClient is the client API for StaticWebsite service.
@@ -168,6 +170,10 @@ type StaticWebsiteClient interface {
 	StaticWebsiteHealthCheck(ctx context.Context, in *StaticWebsiteHealthCheckRequest, opts ...grpc.CallOption) (*StaticWebsiteHealthCheckResponse, error)
 	// 用于上传静态站点文件
 	StaticWebsiteUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[StaticWebsiteUploadFileChunk, StaticWebsiteUploadFileResponse], error)
+	// 删除静态站点文件
+	StaticWebsiteDeleteFile(ctx context.Context, in *StaticWebsiteDeleteFileRequest, opts ...grpc.CallOption) (*StaticWebsiteDeleteFileResponse, error)
+	// 发布站点
+	StaticWebsitePublish(ctx context.Context, in *StaticWebsitePublishRequest, opts ...grpc.CallOption) (*StaticWebsitePublishResponse, error)
 }
 
 type staticWebsiteClient struct {
@@ -201,6 +207,26 @@ func (c *staticWebsiteClient) StaticWebsiteUploadFile(ctx context.Context, opts 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type StaticWebsite_StaticWebsiteUploadFileClient = grpc.ClientStreamingClient[StaticWebsiteUploadFileChunk, StaticWebsiteUploadFileResponse]
 
+func (c *staticWebsiteClient) StaticWebsiteDeleteFile(ctx context.Context, in *StaticWebsiteDeleteFileRequest, opts ...grpc.CallOption) (*StaticWebsiteDeleteFileResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StaticWebsiteDeleteFileResponse)
+	err := c.cc.Invoke(ctx, StaticWebsite_StaticWebsiteDeleteFile_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *staticWebsiteClient) StaticWebsitePublish(ctx context.Context, in *StaticWebsitePublishRequest, opts ...grpc.CallOption) (*StaticWebsitePublishResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StaticWebsitePublishResponse)
+	err := c.cc.Invoke(ctx, StaticWebsite_StaticWebsitePublish_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StaticWebsiteServer is the server API for StaticWebsite service.
 // All implementations must embed UnimplementedStaticWebsiteServer
 // for forward compatibility.
@@ -210,6 +236,10 @@ type StaticWebsiteServer interface {
 	StaticWebsiteHealthCheck(context.Context, *StaticWebsiteHealthCheckRequest) (*StaticWebsiteHealthCheckResponse, error)
 	// 用于上传静态站点文件
 	StaticWebsiteUploadFile(grpc.ClientStreamingServer[StaticWebsiteUploadFileChunk, StaticWebsiteUploadFileResponse]) error
+	// 删除静态站点文件
+	StaticWebsiteDeleteFile(context.Context, *StaticWebsiteDeleteFileRequest) (*StaticWebsiteDeleteFileResponse, error)
+	// 发布站点
+	StaticWebsitePublish(context.Context, *StaticWebsitePublishRequest) (*StaticWebsitePublishResponse, error)
 	mustEmbedUnimplementedStaticWebsiteServer()
 }
 
@@ -225,6 +255,12 @@ func (UnimplementedStaticWebsiteServer) StaticWebsiteHealthCheck(context.Context
 }
 func (UnimplementedStaticWebsiteServer) StaticWebsiteUploadFile(grpc.ClientStreamingServer[StaticWebsiteUploadFileChunk, StaticWebsiteUploadFileResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StaticWebsiteUploadFile not implemented")
+}
+func (UnimplementedStaticWebsiteServer) StaticWebsiteDeleteFile(context.Context, *StaticWebsiteDeleteFileRequest) (*StaticWebsiteDeleteFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StaticWebsiteDeleteFile not implemented")
+}
+func (UnimplementedStaticWebsiteServer) StaticWebsitePublish(context.Context, *StaticWebsitePublishRequest) (*StaticWebsitePublishResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StaticWebsitePublish not implemented")
 }
 func (UnimplementedStaticWebsiteServer) mustEmbedUnimplementedStaticWebsiteServer() {}
 func (UnimplementedStaticWebsiteServer) testEmbeddedByValue()                       {}
@@ -272,6 +308,42 @@ func _StaticWebsite_StaticWebsiteUploadFile_Handler(srv interface{}, stream grpc
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type StaticWebsite_StaticWebsiteUploadFileServer = grpc.ClientStreamingServer[StaticWebsiteUploadFileChunk, StaticWebsiteUploadFileResponse]
 
+func _StaticWebsite_StaticWebsiteDeleteFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StaticWebsiteDeleteFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StaticWebsiteServer).StaticWebsiteDeleteFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StaticWebsite_StaticWebsiteDeleteFile_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StaticWebsiteServer).StaticWebsiteDeleteFile(ctx, req.(*StaticWebsiteDeleteFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StaticWebsite_StaticWebsitePublish_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StaticWebsitePublishRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StaticWebsiteServer).StaticWebsitePublish(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StaticWebsite_StaticWebsitePublish_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StaticWebsiteServer).StaticWebsitePublish(ctx, req.(*StaticWebsitePublishRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StaticWebsite_ServiceDesc is the grpc.ServiceDesc for StaticWebsite service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -282,6 +354,14 @@ var StaticWebsite_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "StaticWebsiteHealthCheck",
 			Handler:    _StaticWebsite_StaticWebsiteHealthCheck_Handler,
+		},
+		{
+			MethodName: "StaticWebsiteDeleteFile",
+			Handler:    _StaticWebsite_StaticWebsiteDeleteFile_Handler,
+		},
+		{
+			MethodName: "StaticWebsitePublish",
+			Handler:    _StaticWebsite_StaticWebsitePublish_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
