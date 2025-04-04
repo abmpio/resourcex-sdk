@@ -12,6 +12,7 @@ import (
 // client interface
 type IClient interface {
 	pb.ResourcexClient
+	pb.StaticWebsiteClient
 }
 
 type Client struct {
@@ -20,6 +21,7 @@ type Client struct {
 	conn *grpc.ClientConn
 
 	pb.ResourcexClient
+	pb.StaticWebsiteClient
 }
 
 var _ IClient = (*Client)(nil)
@@ -54,6 +56,7 @@ func (c *Client) InitConnnection(opts ...grpc.DialOption) error {
 	c.conn = conn
 	//保存客户端
 	c.ResourcexClient = pb.NewResourcexClient(conn)
+	c.StaticWebsiteClient = pb.NewStaticWebsiteClient(conn)
 
 	return nil
 }

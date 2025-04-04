@@ -15,6 +15,14 @@ service Resourcex {
     rpc ResourcexUploadFile(stream ResourcexUploadFileChunk) returns (ResourcexUploadFileResponse);
 }
 
+// 静态站点服务
+service StaticWebsite {
+	rpc StaticWebsiteHealthCheck(StaticWebsiteHealthCheckRequest) returns (StaticWebsiteHealthCheckResponse);
+
+    // 用于上传静态站点文件
+    rpc StaticWebsiteUploadFile(stream StaticWebsiteUploadFileChunk) returns (StaticWebsiteUploadFileResponse);
+}
+
 message ResourcexBaseResponse {
 	int32 code = 1;
 	string message = 2;
@@ -88,4 +96,70 @@ message ResourcexUploadFileResponse {
     // 文件下载url
     string downloadUrl = 7;
     string downloadFileName = 8;
+}
+
+message StaticWebsiteHealthCheckRequest {
+	string service = 1;
+}
+
+message StaticWebsiteHealthCheckResponse {
+	enum ServiceStatus{
+		UNKNOWN = 0;
+		SERVING = 1;
+		NOT_SERVING = 2;
+		SERVICE_UNKNOWN = 3;
+	}
+	ServiceStatus status = 1;
+}
+
+message StaticWebsiteUploadFileChunk {
+    oneof chunk {
+        // 文件元数据（文件名、MD5等）
+        StaticWebsiteUploadFileMetadata metadata = 1; 
+        // 文件数据块
+        bytes data = 2;             
+    }
+}
+
+message StaticWebsiteUploadFileMetadata {
+    // 客户端请求id,客户端自行保证其唯一
+    string requestId = 1;
+    // 网站名称
+    string staticWebsiteName = 2;
+    // 上传此文件的app
+    string app = 3;
+    // 指定存储到服务器中的文件路径
+    string fullFilePath = 4;
+    // 文件名
+    string fileName = 5;
+    // 上传文件的用户id
+    string userId = 6;
+    // 文件的MD5哈希值
+    string fileMd5 = 7;
+    // 文件大小
+    int64 fileSize = 8;
+    // 文件内容类型,如html,js,css等
+    string contentType = 9;
+    // 文件描述
+    string description = 10;
+}
+
+// 静态站点文件上传结果
+message StaticWebsiteUploadFileResponse {    
+    // 是否成功
+    bool success = 1;
+    // 如果失败，则返回失败结果 
+    string message = 2;
+    // 返回客户端请求时的id
+    string requestId = 3;
+    // 文件对象id
+    string fileObjectId = 4;
+    // 资源名称
+    string resourceName = 5;
+    // 文件名
+    string fileName = 6;
+    // 文件下载url
+    string downloadUrl = 7;
+    // 预览url
+    string previewUrl = 8;
 }
