@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Resourcex_ResourcexHealthCheck_FullMethodName = "/proto.Resourcex/ResourcexHealthCheck"
-	Resourcex_ResourcexUploadFile_FullMethodName  = "/proto.Resourcex/ResourcexUploadFile"
+	Resourcex_ResourcexHealthCheck_FullMethodName      = "/nix.Resourcex/ResourcexHealthCheck"
+	Resourcex_ResourcexUploadFile_FullMethodName       = "/nix.Resourcex/ResourcexUploadFile"
+	Resourcex_ResourcexGetContent_FullMethodName       = "/nix.Resourcex/ResourcexGetContent"
+	Resourcex_ResourcexGetContentStream_FullMethodName = "/nix.Resourcex/ResourcexGetContentStream"
 )
 
 // ResourcexClient is the client API for Resourcex service.
@@ -30,6 +32,10 @@ type ResourcexClient interface {
 	ResourcexHealthCheck(ctx context.Context, in *ResourcexHealthCheckRequest, opts ...grpc.CallOption) (*ResourcexHealthCheckResponse, error)
 	// 客户端流式RPC方法，用于上传文件
 	ResourcexUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[ResourcexUploadFileChunk, ResourcexUploadFileResponse], error)
+	// 获取文件内容
+	ResourcexGetContent(ctx context.Context, in *ResourcexGetContentRequest, opts ...grpc.CallOption) (*ResourcexGetContentResponse, error)
+	// 流式获取文件内容
+	ResourcexGetContentStream(ctx context.Context, in *ResourcexGetContentStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ResourcexGetContentStreamChunk], error)
 }
 
 type resourcexClient struct {
@@ -63,6 +69,35 @@ func (c *resourcexClient) ResourcexUploadFile(ctx context.Context, opts ...grpc.
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Resourcex_ResourcexUploadFileClient = grpc.ClientStreamingClient[ResourcexUploadFileChunk, ResourcexUploadFileResponse]
 
+func (c *resourcexClient) ResourcexGetContent(ctx context.Context, in *ResourcexGetContentRequest, opts ...grpc.CallOption) (*ResourcexGetContentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResourcexGetContentResponse)
+	err := c.cc.Invoke(ctx, Resourcex_ResourcexGetContent_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *resourcexClient) ResourcexGetContentStream(ctx context.Context, in *ResourcexGetContentStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ResourcexGetContentStreamChunk], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Resourcex_ServiceDesc.Streams[1], Resourcex_ResourcexGetContentStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ResourcexGetContentStreamRequest, ResourcexGetContentStreamChunk]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Resourcex_ResourcexGetContentStreamClient = grpc.ServerStreamingClient[ResourcexGetContentStreamChunk]
+
 // ResourcexServer is the server API for Resourcex service.
 // All implementations must embed UnimplementedResourcexServer
 // for forward compatibility.
@@ -70,6 +105,10 @@ type ResourcexServer interface {
 	ResourcexHealthCheck(context.Context, *ResourcexHealthCheckRequest) (*ResourcexHealthCheckResponse, error)
 	// 客户端流式RPC方法，用于上传文件
 	ResourcexUploadFile(grpc.ClientStreamingServer[ResourcexUploadFileChunk, ResourcexUploadFileResponse]) error
+	// 获取文件内容
+	ResourcexGetContent(context.Context, *ResourcexGetContentRequest) (*ResourcexGetContentResponse, error)
+	// 流式获取文件内容
+	ResourcexGetContentStream(*ResourcexGetContentStreamRequest, grpc.ServerStreamingServer[ResourcexGetContentStreamChunk]) error
 	mustEmbedUnimplementedResourcexServer()
 }
 
@@ -85,6 +124,12 @@ func (UnimplementedResourcexServer) ResourcexHealthCheck(context.Context, *Resou
 }
 func (UnimplementedResourcexServer) ResourcexUploadFile(grpc.ClientStreamingServer[ResourcexUploadFileChunk, ResourcexUploadFileResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method ResourcexUploadFile not implemented")
+}
+func (UnimplementedResourcexServer) ResourcexGetContent(context.Context, *ResourcexGetContentRequest) (*ResourcexGetContentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResourcexGetContent not implemented")
+}
+func (UnimplementedResourcexServer) ResourcexGetContentStream(*ResourcexGetContentStreamRequest, grpc.ServerStreamingServer[ResourcexGetContentStreamChunk]) error {
+	return status.Errorf(codes.Unimplemented, "method ResourcexGetContentStream not implemented")
 }
 func (UnimplementedResourcexServer) mustEmbedUnimplementedResourcexServer() {}
 func (UnimplementedResourcexServer) testEmbeddedByValue()                   {}
@@ -132,16 +177,49 @@ func _Resourcex_ResourcexUploadFile_Handler(srv interface{}, stream grpc.ServerS
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Resourcex_ResourcexUploadFileServer = grpc.ClientStreamingServer[ResourcexUploadFileChunk, ResourcexUploadFileResponse]
 
+func _Resourcex_ResourcexGetContent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResourcexGetContentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ResourcexServer).ResourcexGetContent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Resourcex_ResourcexGetContent_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ResourcexServer).ResourcexGetContent(ctx, req.(*ResourcexGetContentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Resourcex_ResourcexGetContentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ResourcexGetContentStreamRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ResourcexServer).ResourcexGetContentStream(m, &grpc.GenericServerStream[ResourcexGetContentStreamRequest, ResourcexGetContentStreamChunk]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Resourcex_ResourcexGetContentStreamServer = grpc.ServerStreamingServer[ResourcexGetContentStreamChunk]
+
 // Resourcex_ServiceDesc is the grpc.ServiceDesc for Resourcex service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Resourcex_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.Resourcex",
+	ServiceName: "nix.Resourcex",
 	HandlerType: (*ResourcexServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ResourcexHealthCheck",
 			Handler:    _Resourcex_ResourcexHealthCheck_Handler,
+		},
+		{
+			MethodName: "ResourcexGetContent",
+			Handler:    _Resourcex_ResourcexGetContent_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
@@ -150,15 +228,21 @@ var Resourcex_ServiceDesc = grpc.ServiceDesc{
 			Handler:       _Resourcex_ResourcexUploadFile_Handler,
 			ClientStreams: true,
 		},
+		{
+			StreamName:    "ResourcexGetContentStream",
+			Handler:       _Resourcex_ResourcexGetContentStream_Handler,
+			ServerStreams: true,
+		},
 	},
 	Metadata: "resourcex.proto",
 }
 
 const (
-	StaticWebsite_StaticWebsiteHealthCheck_FullMethodName = "/proto.StaticWebsite/StaticWebsiteHealthCheck"
-	StaticWebsite_StaticWebsiteUploadFile_FullMethodName  = "/proto.StaticWebsite/StaticWebsiteUploadFile"
-	StaticWebsite_StaticWebsiteDeleteFile_FullMethodName  = "/proto.StaticWebsite/StaticWebsiteDeleteFile"
-	StaticWebsite_StaticWebsitePublish_FullMethodName     = "/proto.StaticWebsite/StaticWebsitePublish"
+	StaticWebsite_StaticWebsiteHealthCheck_FullMethodName = "/nix.StaticWebsite/StaticWebsiteHealthCheck"
+	StaticWebsite_StaticWebsitePageList_FullMethodName    = "/nix.StaticWebsite/StaticWebsitePageList"
+	StaticWebsite_StaticWebsiteUploadFile_FullMethodName  = "/nix.StaticWebsite/StaticWebsiteUploadFile"
+	StaticWebsite_StaticWebsiteDeleteFile_FullMethodName  = "/nix.StaticWebsite/StaticWebsiteDeleteFile"
+	StaticWebsite_StaticWebsitePublish_FullMethodName     = "/nix.StaticWebsite/StaticWebsitePublish"
 )
 
 // StaticWebsiteClient is the client API for StaticWebsite service.
@@ -168,6 +252,8 @@ const (
 // 静态站点服务
 type StaticWebsiteClient interface {
 	StaticWebsiteHealthCheck(ctx context.Context, in *StaticWebsiteHealthCheckRequest, opts ...grpc.CallOption) (*StaticWebsiteHealthCheckResponse, error)
+	// 获取静态站点的页面文件列表
+	StaticWebsitePageList(ctx context.Context, in *StaticWebsitePageListRequest, opts ...grpc.CallOption) (*StaticWebsitePageListResponse, error)
 	// 用于上传静态站点文件
 	StaticWebsiteUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[StaticWebsiteUploadFileChunk, StaticWebsiteUploadFileResponse], error)
 	// 删除静态站点文件
@@ -188,6 +274,16 @@ func (c *staticWebsiteClient) StaticWebsiteHealthCheck(ctx context.Context, in *
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StaticWebsiteHealthCheckResponse)
 	err := c.cc.Invoke(ctx, StaticWebsite_StaticWebsiteHealthCheck_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *staticWebsiteClient) StaticWebsitePageList(ctx context.Context, in *StaticWebsitePageListRequest, opts ...grpc.CallOption) (*StaticWebsitePageListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(StaticWebsitePageListResponse)
+	err := c.cc.Invoke(ctx, StaticWebsite_StaticWebsitePageList_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -234,6 +330,8 @@ func (c *staticWebsiteClient) StaticWebsitePublish(ctx context.Context, in *Stat
 // 静态站点服务
 type StaticWebsiteServer interface {
 	StaticWebsiteHealthCheck(context.Context, *StaticWebsiteHealthCheckRequest) (*StaticWebsiteHealthCheckResponse, error)
+	// 获取静态站点的页面文件列表
+	StaticWebsitePageList(context.Context, *StaticWebsitePageListRequest) (*StaticWebsitePageListResponse, error)
 	// 用于上传静态站点文件
 	StaticWebsiteUploadFile(grpc.ClientStreamingServer[StaticWebsiteUploadFileChunk, StaticWebsiteUploadFileResponse]) error
 	// 删除静态站点文件
@@ -252,6 +350,9 @@ type UnimplementedStaticWebsiteServer struct{}
 
 func (UnimplementedStaticWebsiteServer) StaticWebsiteHealthCheck(context.Context, *StaticWebsiteHealthCheckRequest) (*StaticWebsiteHealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StaticWebsiteHealthCheck not implemented")
+}
+func (UnimplementedStaticWebsiteServer) StaticWebsitePageList(context.Context, *StaticWebsitePageListRequest) (*StaticWebsitePageListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StaticWebsitePageList not implemented")
 }
 func (UnimplementedStaticWebsiteServer) StaticWebsiteUploadFile(grpc.ClientStreamingServer[StaticWebsiteUploadFileChunk, StaticWebsiteUploadFileResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method StaticWebsiteUploadFile not implemented")
@@ -297,6 +398,24 @@ func _StaticWebsite_StaticWebsiteHealthCheck_Handler(srv interface{}, ctx contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(StaticWebsiteServer).StaticWebsiteHealthCheck(ctx, req.(*StaticWebsiteHealthCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _StaticWebsite_StaticWebsitePageList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StaticWebsitePageListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StaticWebsiteServer).StaticWebsitePageList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StaticWebsite_StaticWebsitePageList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StaticWebsiteServer).StaticWebsitePageList(ctx, req.(*StaticWebsitePageListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -348,12 +467,16 @@ func _StaticWebsite_StaticWebsitePublish_Handler(srv interface{}, ctx context.Co
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var StaticWebsite_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.StaticWebsite",
+	ServiceName: "nix.StaticWebsite",
 	HandlerType: (*StaticWebsiteServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "StaticWebsiteHealthCheck",
 			Handler:    _StaticWebsite_StaticWebsiteHealthCheck_Handler,
+		},
+		{
+			MethodName: "StaticWebsitePageList",
+			Handler:    _StaticWebsite_StaticWebsitePageList_Handler,
 		},
 		{
 			MethodName: "StaticWebsiteDeleteFile",

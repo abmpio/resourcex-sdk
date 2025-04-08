@@ -1,24 +1,26 @@
 syntax = "proto3";
 
-// import "google/protobuf/struct.proto";
-// import "google/protobuf/timestamp.proto";
-// import "google/protobuf/empty.proto";
+option go_package="github.com/abmpio/resourcex-sdk/proto";
 
-option go_package="./proto";
-
-package proto;
+package nix;
 
 service Resourcex {
 	rpc ResourcexHealthCheck(ResourcexHealthCheckRequest) returns (ResourcexHealthCheckResponse);
 
     // 客户端流式RPC方法，用于上传文件
     rpc ResourcexUploadFile(stream ResourcexUploadFileChunk) returns (ResourcexUploadFileResponse);
+    // 获取文件内容
+    rpc ResourcexGetContent (ResourcexGetContentRequest) returns (ResourcexGetContentResponse);
+    // 流式获取文件内容
+    rpc ResourcexGetContentStream (ResourcexGetContentStreamRequest) returns (stream ResourcexGetContentStreamChunk);
 }
 
 // 静态站点服务
 service StaticWebsite {
 	rpc StaticWebsiteHealthCheck(StaticWebsiteHealthCheckRequest) returns (StaticWebsiteHealthCheckResponse);
 
+    // 获取静态站点的页面文件列表
+    rpc StaticWebsitePageList(StaticWebsitePageListRequest) returns (StaticWebsitePageListResponse);
     // 用于上传静态站点文件
     rpc StaticWebsiteUploadFile(stream StaticWebsiteUploadFileChunk) returns (StaticWebsiteUploadFileResponse);
     // 删除静态站点文件
@@ -102,6 +104,70 @@ message ResourcexUploadFileResponse {
     string downloadFileName = 8;
 }
 
+message ResourcexGetContentRequest {
+    // 文件objectId
+    string fileObjectId = 1;
+}
+
+message ResourcexInfo {
+    string FileObjectId = 1;
+    // 文件所属空间id
+    string spaceObjectId = 2;
+    // 文件tag
+    string tag = 3;
+    // 文件所属文件夹
+    string folder = 4;
+    // 资源名称
+    string name = 5;
+    // 文件名
+    string fileName = 6;
+    // 文件内容的md4
+    string md5 = 7;
+    // 文件大小
+    int64 size = 8;
+    // 文件类型
+    string fileType = 9;
+    // mime类型 
+    string mimeType = 10;
+    // 文件描述
+    string description = 11;
+    // 预览url
+    string previewUrl = 12;
+    // 下载url
+    string downloadUrl = 13;
+}
+
+message ResourcexGetContentResponse {
+    // 是否成功
+    bool success = 1;
+    // 如果失败，则返回失败结果 
+    string message = 2;    
+    // 要获取的文件objectId
+    string fileObjectId = 3;
+    // 文件信息
+    ResourcexInfo info = 4;
+    // 文件内容
+    bytes content = 5;
+}
+
+message ResourcexGetContentStreamRequest {
+    // 文件objectId
+    string fileObjectId = 1;
+}
+
+message ResourcexGetContentStreamChunk {
+    // 是否成功
+    bool success = 1;
+    // 如果失败，则返回失败结果 
+    string message = 2;    
+    // 要获取的文件objectId
+    string fileObjectId = 3;
+    // 文件信息
+    ResourcexInfo info = 4;
+    // 文件内容
+    bytes content = 5;
+}
+
 message StaticWebsiteHealthCheckRequest {
 	string service = 1;
 }
@@ -114,6 +180,29 @@ message StaticWebsiteHealthCheckResponse {
 		SERVICE_UNKNOWN = 3;
 	}
 	ServiceStatus status = 1;
+}
+
+message StaticWebsitePageListRequest {
+	string name = 1;
+    // 要搜索的子文件夹中的文件
+    repeated string subFolderList = 2;
+}
+
+// 静态站点信息
+message StaticWebsiteInfo {
+	string spaceObjectId = 1;
+    string spaceName = 2;
+    // 名称
+    string name = 3;
+    // 显示名称
+    string displayName = 4;
+    string description = 5;
+    string websiteRootUrl = 6;
+}
+
+message StaticWebsitePageListResponse {
+    StaticWebsiteInfo websiteInfo = 1;
+	repeated ResourcexInfo fileList = 2;
 }
 
 message StaticWebsiteUploadFileChunk {
@@ -173,8 +262,6 @@ message StaticWebsiteDeleteFileRequest {
     string staticWebsiteName = 1;
     // 删除的文件objectId
     string FileObjectId = 2;
-    // 用户id
-    string userId = 3;
 }
 
 message StaticWebsiteDeleteFileResponse {
@@ -191,8 +278,6 @@ message StaticWebsiteDeleteFileResponse {
 message StaticWebsitePublishRequest {
 	// 网站名称
     string staticWebsiteName = 1;
-    // 用户id
-    string userId = 2;
 }
 
 message StaticWebsitePublishResponse {

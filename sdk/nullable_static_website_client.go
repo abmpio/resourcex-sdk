@@ -19,6 +19,12 @@ func (*nullableStaticWebsiteClient) StaticWebsiteHealthCheck(ctx context.Context
 	}, nil
 }
 
+// 获取静态站点的页面文件列表
+func (*nullableStaticWebsiteClient) StaticWebsitePageList(ctx context.Context, in *pb.StaticWebsitePageListRequest, opts ...grpc.CallOption) (*pb.StaticWebsitePageListResponse, error) {
+	log.Logger.Warn("nullableStaticWebsiteClient.StaticWebsitePageList method")
+	return nil, nil
+}
+
 func (*nullableStaticWebsiteClient) StaticWebsiteUploadFile(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[pb.StaticWebsiteUploadFileChunk, pb.StaticWebsiteUploadFileResponse], error) {
 	log.Logger.Warn("nullableStaticWebsiteClient.StaticWebsiteUploadFile method")
 	return nil, nil

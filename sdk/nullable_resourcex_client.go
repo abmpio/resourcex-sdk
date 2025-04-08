@@ -23,3 +23,14 @@ func (*nullableResourcexClient) ResourcexUploadFile(ctx context.Context, opts ..
 	log.Logger.Warn("nullableResourcexClient.ResourcexUploadFile method")
 	return nil, nil
 }
+
+func (*nullableResourcexClient) ResourcexGetContent(ctx context.Context, in *pb.ResourcexGetContentRequest, opts ...grpc.CallOption) (*pb.ResourcexGetContentResponse, error) {
+	log.Logger.Warn("nullableResourcexClient.ResourcexGetContent method")
+	return nil, nil
+}
+
+// 流式获取文件内容
+func (*nullableResourcexClient) ResourcexGetContentStream(ctx context.Context, in *pb.ResourcexGetContentStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.ResourcexGetContentStreamChunk], error) {
+	log.Logger.Warn("nullableResourcexClient.ResourcexGetContentStream method")
+	return nil, nil
+}
