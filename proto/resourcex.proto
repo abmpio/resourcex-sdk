@@ -2,6 +2,8 @@ syntax = "proto3";
 
 option go_package="github.com/abmpio/resourcex-sdk/proto";
 
+import "google/protobuf/wrappers.proto"; 
+
 package nix;
 
 service Resourcex {
@@ -81,9 +83,9 @@ message ResourcexUploadFileMetadata {
     // 文件内容类型
     string contentType = 11;
     // 文件描述
-    string description = 12;
+    google.protobuf.StringValue description = 12;
     // 下载时服务器给的文件名
-    string downloadFileName = 13;
+    google.protobuf.StringValue downloadFileName = 13;
 }
 
 message ResourcexUploadFileResponse {    
@@ -234,7 +236,7 @@ message StaticWebsiteUploadFileMetadata {
     // 文件内容类型,如html,js,css等
     string contentType = 9;
     // 文件描述
-    string description = 10;
+    google.protobuf.StringValue description = 10;
 }
 
 // 静态站点文件上传结果
