@@ -23,30 +23,39 @@ func serviceConfigurator(wa cli.CliApplication) {
 	if app.HostApplication.SystemConfig().App.IsRunInCli {
 		return
 	}
-	opt := options.GetOptions()
-	_client := sdk.NewClient(sdk.WithHost(opt.Host), sdk.WithPort(opt.Port))
-	//测试ping
-	for {
-		err := _client.InitConnnection()
-		if err == nil {
-			var res *pb.ResourcexHealthCheckResponse
-			res, err = _client.ResourcexHealthCheck(context.TODO(), &pb.ResourcexHealthCheckRequest{})
-			if err == nil {
-				log.Logger.Info(fmt.Sprintf("已成功初始化resourcex grpc服务器:%s,status:%s",
-					fmt.Sprintf("%s:%d", opt.Host, opt.Port),
-					res.Status.String()))
-				break
-			}
-			if res != nil {
-				log.Logger.Info(fmt.Sprintf("resourcex grpc服务器:%s,status:%s",
-					fmt.Sprintf("%s:%d", opt.Host, opt.Port),
-					res.Status.String()))
-			}
-		}
+	var _client sdk.IClient
 
-		log.Logger.Warn(err.Error())
-		log.Logger.Warn("2s后重新测试...")
-		time.Sleep(2 * time.Second)
+	opt := options.GetOptions()
+	if !opt.Disabled {
+		resourcexClient := sdk.NewClient(sdk.WithHost(opt.Host), sdk.WithPort(opt.Port))
+		//测试ping
+		for {
+			err := resourcexClient.InitConnnection()
+			if err != nil {
+				log.Logger.Warn(fmt.Sprintf("初始化resourcex grpc连接时出现异常,option:%s, err:%s",
+					opt.String(),
+					err.Error()))
+			} else {
+				res, err := resourcexClient.ResourcexHealthCheck(context.TODO(), &pb.ResourcexHealthCheckRequest{})
+				if err != nil {
+					log.Logger.Warn(fmt.Sprintf("检测resourcex grpc 服务健康是否正常时出现异常,option:%s, err:%s",
+						opt.String(),
+						err.Error()))
+				} else {
+					if res != nil {
+						log.Logger.Info(fmt.Sprintf("resourcex grpc status:%s", res.Status.String()))
+					}
+					// set client
+					_client = resourcexClient
+					break
+				}
+			}
+			log.Logger.Warn("2s后重新测试...")
+			time.Sleep(2 * time.Second)
+		}
+	} else {
+		log.Logger.Warn("resourcex grpc client disabled")
+		_client = &sdk.NullableClient{}
 	}
 	sdk.SetGlobalClient(_client)
 	app.Context.RegistInstanceAs(_client, new(pb.ResourcexClient))

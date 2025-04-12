@@ -20,8 +20,6 @@ var (
 )
 
 type ResourcexSdkOptions struct {
-	// 插件所在的应用名称，当直接使用service中的FindOneByCode函数时默认将获取此app范围内的值
-	// 如果不指定，则获取所有的
 	DefaultApp string `json:"defaultApp"`
 	Host       string `json:"host"`
 	Port       int32  `json:"port"`
@@ -39,6 +37,10 @@ func (o *ResourcexSdkOptions) normalize() {
 	if o.Port <= 0 {
 		o.Port = 9029
 	}
+}
+
+func (o *ResourcexSdkOptions) String() string {
+	return fmt.Sprintf("%s:%d,defaultApp:%s", o.Host, o.Port, o.DefaultApp)
 }
 
 func GetOptions() *ResourcexSdkOptions {
