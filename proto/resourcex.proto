@@ -104,6 +104,12 @@ message ResourcexUploadFileResponse {
     // 文件下载url
     string downloadUrl = 7;
     string downloadFileName = 8;
+    // mime类型
+    string mimeType = 9;
+    // 预览url
+    string previewUrl = 10;
+    // 文件大小
+    int64 size = 11;
 }
 
 message ResourcexGetContentRequest {
@@ -129,7 +135,7 @@ message ResourcexInfo {
     int64 size = 8;
     // 文件类型
     string fileType = 9;
-    // mime类型 
+    // mime类型
     string mimeType = 10;
     // 文件描述
     string description = 11;
