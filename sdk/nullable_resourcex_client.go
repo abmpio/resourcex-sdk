@@ -34,3 +34,9 @@ func (*nullableResourcexClient) ResourcexGetContentStream(ctx context.Context, i
 	log.Logger.Warn("nullableResourcexClient.ResourcexGetContentStream method")
 	return nil, nil
 }
+
+// 压缩一组文件资源为zip文件
+func (*nullableResourcexClient) ResourcexGetFileListContentStream(ctx context.Context, in *pb.ResourcexGetFileListContentStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[pb.ResourcexGetFileListContentStreamChunk], error) {
+	log.Logger.Warn("nullableResourcexClient.ResourcexGetFileListContentStream method")
+	return nil, nil
+}

@@ -15,6 +15,8 @@ service Resourcex {
     rpc ResourcexGetContent (ResourcexGetContentRequest) returns (ResourcexGetContentResponse);
     // 流式获取文件内容
     rpc ResourcexGetContentStream (ResourcexGetContentStreamRequest) returns (stream ResourcexGetContentStreamChunk);
+    // 压缩一组文件资源为zip文件
+    rpc ResourcexGetFileListContentStream (ResourcexGetFileListContentStreamRequest) returns (stream ResourcexGetFileListContentStreamChunk);
 }
 
 // 静态站点服务
@@ -174,6 +176,38 @@ message ResourcexGetContentStreamChunk {
     ResourcexInfo info = 4;
     // 文件内容
     bytes content = 5;
+}
+
+// ResourcexGetFileListContentStream请求的参数
+message ResourcexGetFileListContentStreamRequest {
+    // space object id
+    string spaceObjectId = 1;
+    FolderTreeNode folder = 2;
+}
+
+// 定义 FolderTreeNode
+message FolderTreeNode {
+    repeated FileObjectDownloadItem fileObjectList = 1;
+    // 文件夹名称，不含路径
+    string folderName = 2;
+    repeated FolderTreeNode children = 3;
+}
+
+// 定义 FileObjectDownloadItem
+message FileObjectDownloadItem {
+    string fileObjectId = 1;
+    // 为此文件资源指定一个文件名，不指定时将使用上传时给的文件名
+    string downloadFileName = 2;
+}
+  
+// ResourcexGetFileListContentStream请求的返回值
+message ResourcexGetFileListContentStreamChunk {
+    // 是否成功
+    bool success = 1;
+    // 如果失败，则返回失败结果
+    string message = 2;    
+    // 文件内容
+    bytes content = 3;
 }
 
 message StaticWebsiteHealthCheckRequest {

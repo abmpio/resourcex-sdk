@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Resourcex_ResourcexHealthCheck_FullMethodName      = "/nix.Resourcex/ResourcexHealthCheck"
-	Resourcex_ResourcexUploadFile_FullMethodName       = "/nix.Resourcex/ResourcexUploadFile"
-	Resourcex_ResourcexGetContent_FullMethodName       = "/nix.Resourcex/ResourcexGetContent"
-	Resourcex_ResourcexGetContentStream_FullMethodName = "/nix.Resourcex/ResourcexGetContentStream"
+	Resourcex_ResourcexHealthCheck_FullMethodName              = "/nix.Resourcex/ResourcexHealthCheck"
+	Resourcex_ResourcexUploadFile_FullMethodName               = "/nix.Resourcex/ResourcexUploadFile"
+	Resourcex_ResourcexGetContent_FullMethodName               = "/nix.Resourcex/ResourcexGetContent"
+	Resourcex_ResourcexGetContentStream_FullMethodName         = "/nix.Resourcex/ResourcexGetContentStream"
+	Resourcex_ResourcexGetFileListContentStream_FullMethodName = "/nix.Resourcex/ResourcexGetFileListContentStream"
 )
 
 // ResourcexClient is the client API for Resourcex service.
@@ -36,6 +37,8 @@ type ResourcexClient interface {
 	ResourcexGetContent(ctx context.Context, in *ResourcexGetContentRequest, opts ...grpc.CallOption) (*ResourcexGetContentResponse, error)
 	// 流式获取文件内容
 	ResourcexGetContentStream(ctx context.Context, in *ResourcexGetContentStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ResourcexGetContentStreamChunk], error)
+	// 压缩一组文件资源为zip文件
+	ResourcexGetFileListContentStream(ctx context.Context, in *ResourcexGetFileListContentStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ResourcexGetFileListContentStreamChunk], error)
 }
 
 type resourcexClient struct {
@@ -98,6 +101,25 @@ func (c *resourcexClient) ResourcexGetContentStream(ctx context.Context, in *Res
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Resourcex_ResourcexGetContentStreamClient = grpc.ServerStreamingClient[ResourcexGetContentStreamChunk]
 
+func (c *resourcexClient) ResourcexGetFileListContentStream(ctx context.Context, in *ResourcexGetFileListContentStreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ResourcexGetFileListContentStreamChunk], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &Resourcex_ServiceDesc.Streams[2], Resourcex_ResourcexGetFileListContentStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ResourcexGetFileListContentStreamRequest, ResourcexGetFileListContentStreamChunk]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Resourcex_ResourcexGetFileListContentStreamClient = grpc.ServerStreamingClient[ResourcexGetFileListContentStreamChunk]
+
 // ResourcexServer is the server API for Resourcex service.
 // All implementations must embed UnimplementedResourcexServer
 // for forward compatibility.
@@ -109,6 +131,8 @@ type ResourcexServer interface {
 	ResourcexGetContent(context.Context, *ResourcexGetContentRequest) (*ResourcexGetContentResponse, error)
 	// 流式获取文件内容
 	ResourcexGetContentStream(*ResourcexGetContentStreamRequest, grpc.ServerStreamingServer[ResourcexGetContentStreamChunk]) error
+	// 压缩一组文件资源为zip文件
+	ResourcexGetFileListContentStream(*ResourcexGetFileListContentStreamRequest, grpc.ServerStreamingServer[ResourcexGetFileListContentStreamChunk]) error
 	mustEmbedUnimplementedResourcexServer()
 }
 
@@ -130,6 +154,9 @@ func (UnimplementedResourcexServer) ResourcexGetContent(context.Context, *Resour
 }
 func (UnimplementedResourcexServer) ResourcexGetContentStream(*ResourcexGetContentStreamRequest, grpc.ServerStreamingServer[ResourcexGetContentStreamChunk]) error {
 	return status.Errorf(codes.Unimplemented, "method ResourcexGetContentStream not implemented")
+}
+func (UnimplementedResourcexServer) ResourcexGetFileListContentStream(*ResourcexGetFileListContentStreamRequest, grpc.ServerStreamingServer[ResourcexGetFileListContentStreamChunk]) error {
+	return status.Errorf(codes.Unimplemented, "method ResourcexGetFileListContentStream not implemented")
 }
 func (UnimplementedResourcexServer) mustEmbedUnimplementedResourcexServer() {}
 func (UnimplementedResourcexServer) testEmbeddedByValue()                   {}
@@ -206,6 +233,17 @@ func _Resourcex_ResourcexGetContentStream_Handler(srv interface{}, stream grpc.S
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type Resourcex_ResourcexGetContentStreamServer = grpc.ServerStreamingServer[ResourcexGetContentStreamChunk]
 
+func _Resourcex_ResourcexGetFileListContentStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ResourcexGetFileListContentStreamRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ResourcexServer).ResourcexGetFileListContentStream(m, &grpc.GenericServerStream[ResourcexGetFileListContentStreamRequest, ResourcexGetFileListContentStreamChunk]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type Resourcex_ResourcexGetFileListContentStreamServer = grpc.ServerStreamingServer[ResourcexGetFileListContentStreamChunk]
+
 // Resourcex_ServiceDesc is the grpc.ServiceDesc for Resourcex service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -231,6 +269,11 @@ var Resourcex_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "ResourcexGetContentStream",
 			Handler:       _Resourcex_ResourcexGetContentStream_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ResourcexGetFileListContentStream",
+			Handler:       _Resourcex_ResourcexGetFileListContentStream_Handler,
 			ServerStreams: true,
 		},
 	},
