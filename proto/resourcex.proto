@@ -183,6 +183,8 @@ message ResourcexGetFileListContentStreamRequest {
     // space object id
     string spaceObjectId = 1;
     FolderTreeNode folder = 2;
+    // 当文件已经存在时是否重命名文件
+    bool renameFileNameWhenDuplicated = 3;
 }
 
 // 定义 FolderTreeNode
